@@ -1,0 +1,69 @@
+Adding job tentatively -- it will be properly scheduled when the scheduler starts
+Added job "buy_low_sell_high" to job store "default"
+Scheduler started
+Adding job tentatively -- it will be properly scheduled when the scheduler starts
+Added job "buy_low_sell_high" to job store "default"
+Scheduler started
+Running job "buy_low_sell_high (trigger: interval[0:00:05], next run at: 2024-05-22 01:45:52 PKT)" (scheduled at 2024-05-22 01:45:52.023044+05:00)
+{'symbol': 'LINKUSDT', 'price': '16.69500000'}
+Created at           : 22-05-2024 @ 01:45:52
+Prefix Core          : 10 USDT
+Current Core         : 0.16 USDT
+Percentage Changed   : -98.4 %
+Action               : BUY 9.84 USDT
+
+Job "buy_low_sell_high (trigger: interval[0:00:05], next run at: 2024-05-22 01:45:57 PKT)" executed successfully
+Running job "buy_low_sell_high (trigger: interval[0:00:05], next run at: 2024-05-22 01:46:02 PKT)" (scheduled at 2024-05-22 01:45:57.023044+05:00)
+{'symbol': 'LINKUSDT', 'price': '16.69500000'}
+Created at           : 22-05-2024 @ 01:45:57
+Prefix Core          : 10 USDT
+Current Core         : 0.16 USDT
+Percentage Changed   : -98.4 %
+Action               : BUY 9.84 USDT
+
+Job "buy_low_sell_high (trigger: interval[0:00:05], next run at: 2024-05-22 01:46:02 PKT)" executed successfully
+Running job "buy_low_sell_high (trigger: interval[0:00:05], next run at: 2024-05-22 01:46:07 PKT)" (scheduled at 2024-05-22 01:46:02.023044+05:00)
+{'symbol': 'LINKUSDT', 'price': '16.69600000'}
+Created at           : 22-05-2024 @ 01:46:02
+Prefix Core          : 10 USDT
+Current Core         : 0.16 USDT
+Percentage Changed   : -98.4 %
+Action               : BUY 9.84 USDT
+
+Job "buy_low_sell_high (trigger: interval[0:00:05], next run at: 2024-05-22 01:46:07 PKT)" executed successfully
+Running job "buy_low_sell_high (trigger: interval[0:00:05], next run at: 2024-05-22 01:46:12 PKT)" (scheduled at 2024-05-22 01:46:07.023044+05:00)
+{'symbol': 'LINKUSDT', 'price': '16.69500000'}
+Created at           : 22-05-2024 @ 01:46:07
+Prefix Core          : 10 USDT
+Current Core         : 0.16 USDT
+Percentage Changed   : -98.4 %
+Action               : BUY 9.84 USDT
+
+Job "buy_low_sell_high (trigger: interval[0:00:05], next run at: 2024-05-22 01:46:12 PKT)" executed successfully
+Running job "buy_low_sell_high (trigger: interval[0:00:05], next run at: 2024-05-22 01:46:17 PKT)" (scheduled at 2024-05-22 01:46:12.023044+05:00)
+{'symbol': 'LINKUSDT', 'price': '16.70000000'}
+Created at           : 22-05-2024 @ 01:46:12
+Prefix Core          : 10 USDT
+Current Core         : 0.16 USDT
+Percentage Changed   : -98.4 %
+Action               : BUY 9.84 USDT
+
+Job "buy_low_sell_high (trigger: interval[0:00:05], next run at: 2024-05-22 01:46:17 PKT)" executed successfully
+Running job "buy_low_sell_high (trigger: interval[0:00:05], next run at: 2024-05-22 01:46:22 PKT)" (scheduled at 2024-05-22 01:46:17.023044+05:00)
+{'symbol': 'LINKUSDT', 'price': '16.70500000'}
+Created at           : 22-05-2024 @ 01:46:17
+Prefix Core          : 10 USDT
+Current Core         : 0.16 USDT
+Percentage Changed   : -98.4 %
+Action               : BUY 9.84 USDT
+
+Job "buy_low_sell_high (trigger: interval[0:00:05], next run at: 2024-05-22 01:46:22 PKT)" executed successfully
+Running job "buy_low_sell_high (trigger: interval[0:00:05], next run at: 2024-05-22 01:46:27 PKT)" (scheduled at 2024-05-22 01:46:22.023044+05:00)
+{'symbol': 'LINKUSDT', 'price': '16.70100000'}
+Created at           : 22-05-2024 @ 01:46:22
+Prefix Core          : 10 USDT
+Current Core         : 0.16 USDT
+Percentage Changed   : -98.4 %
+Action               : BUY 9.84 USDT
+
+Job "buy_low_sell_high (trigger: interval[0:00:05], next run at: 2024-05-22 01:46:27 PKT)" executed successfully

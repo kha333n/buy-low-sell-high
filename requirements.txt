@@ -1,3 +1,6 @@
 apscheduler
 python-binance
 termcolor
+python-dotenv
+openai
+google-generativeai
