@@ -1,5 +1,6 @@
 live_trade = True
 enable_scheduler = True
+use_fixed_margin = False
 
 # You can select the coins that you want to trade here
 base = ["LINK", "FLOKI", "PEPE"]
@@ -7,15 +8,23 @@ core = [5]
 
 # Optimal value, do not change these
 quote = ["USDT"]
-margin_percentage = 1.5
+# margin_percentage = 1.5
+# Initial user-defined margins
+
+initial_margins = {
+    "LINKUSDT": 2.0,
+    "FLOKIUSDT": 1.5,
+    "PEPEUSDT": 1.8
+}
 
 import logging
-import openai
 import os
 import requests
 import socket
 import urllib3
 from datetime import datetime
+
+import json
 
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
@@ -28,7 +37,6 @@ load_dotenv()
 api_key = os.getenv('BINANCE_KEY')
 api_secret = os.getenv('BINANCE_SECRET')
 client = Client(api_key, api_secret)
-openai.api_key = os.getenv('OPENAI_KEY')
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO,
@@ -60,21 +68,60 @@ for coin in quote:
         decimal == 4
     round_off.append(decimal)
 
+# Load or initialize margin percentages
+margin_file = "margin_percentages.txt"
+if os.path.exists(margin_file):
+    with open(margin_file, 'r') as file:
+        margin_percentages = json.load(file)
+else:
+    margin_percentages = initial_margins.copy()
 
-def analyze_market(asset_price, asset_balance):
-    # Make a call to OpenAI to get the adjusted trading amount
-    prompt = f"""
-    Given the current asset price of {asset_price}, and asset balance of {asset_balance},
-    suggest the trading action to maximize USDT balance. Indicate if we should buy, sell, or hold,
-    and the amount to trade.
-    """
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
-        max_tokens=50
-    )
-    action_suggestion = response.choices[0].text.strip().lower()
-    return action_suggestion
+
+def get_min_notional_in_usdt(symbol):
+    try:
+        min_notional = 0.0
+        info = client.get_symbol_info(symbol)
+        info_json = json.loads(json.dumps(info))  # Parse info to JSON
+        min_notional = 0.0
+
+        for filter in info_json['filters']:
+            if filter['filterType'] == 'NOTIONAL':
+                min_notional = float(filter['minNotional'])
+                break
+
+        print(min_notional, 'min_notional')
+
+        # Fetch the current price of the symbol
+        current_price = float(client.get_symbol_ticker(symbol=symbol)['price'])
+        print(current_price, 'current_price')
+        # Calculate the minimum notional value in USDT
+        min_notional_usdt = min_notional * current_price
+        print(min_notional_usdt, 'min_notional_usdt')
+        return min_notional_usdt
+    except BinanceAPIException as e:
+        logging.error(f"Error fetching minimum notional in USDT for {symbol}: {e}")
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {e}")
+
+
+def adjust_margin_for_min_notional(traded_symbol, current_margin_percentage):
+    if use_fixed_margin:
+        return current_margin_percentage
+    min_notional = get_min_notional_in_usdt(traded_symbol)
+    # Get the current price of the traded symbol against USDT
+    traded_symbol_price = float(client.get_symbol_ticker(symbol=traded_symbol)['price'])
+    # Calculate the minimum notional in USDT
+    min_notional_usdt = min_notional * traded_symbol_price
+    # Fetch the balance of the core currency (USDT)
+    core_balance = float(client.get_asset_balance(asset="USDT").get("free"))
+    # Calculate the equivalent of the core currency (USDT) in USDT
+    core_balance_usdt = core_balance
+    # Calculate the required margin percentage in terms of USDT
+    required_margin_percentage = (min_notional_usdt / core_balance_usdt) * 100
+    required_margin_percentage = required_margin_percentage * 1.05  # Add a 5% buffer
+    # Return the higher of the calculated margin percentage and the current margin percentage
+    print(required_margin_percentage, 'required_margin_percentage')
+    return required_margin_percentage
 
 
 def buy_low_sell_high():
@@ -98,13 +145,19 @@ def buy_low_sell_high():
         asset_price = float(asset_info.get("price"))
         asset_balance = float(client.get_asset_balance(asset=base[i]).get("free"))
 
-        # Computing for Trade Quantity
         current_holding = round(asset_balance * asset_price, my_round_off)
+
+        # Adjust margin percentage based on min notional
+        current_margin_percentage = margin_percentages[pair[i]]
+        adjusted_margin_percentage = adjust_margin_for_min_notional(pair[i], current_margin_percentage)
+        margin_percentages[pair[i]] = adjusted_margin_percentage
+
         change_percent = round(((current_holding - my_core_number) / my_core_number * 100), 4)
         trade_amount = round(abs(current_holding - my_core_number), my_round_off)
 
+        log_message = ""
         # Output Console and Placing Order
-        if (current_holding > my_core_number) and (abs(change_percent) > margin_percentage):
+        if (current_holding > my_core_number) and (abs(change_percent) > current_margin_percentage):
             if live_trade:
                 client.order_market_sell(symbol=pair[i], quoteOrderQty=trade_amount)
             log_message = (
@@ -116,8 +169,7 @@ def buy_low_sell_high():
                     colored("Percentage Changed   : " + str(change_percent) + " %", "green") + "\n" +
                     colored("Action               : SELL " + str(trade_amount) + " " + my_quote_asset + "\n", "green")
             )
-
-        elif (current_holding < my_core_number) and (abs(change_percent) > margin_percentage):
+        elif (current_holding < my_core_number) and (abs(change_percent) > current_margin_percentage):
             if live_trade:
                 client.order_market_buy(symbol=pair[i], quoteOrderQty=trade_amount)
             log_message = (
@@ -129,7 +181,6 @@ def buy_low_sell_high():
                     colored("Percentage Changed   : " + str(change_percent) + " %", "red") + "\n" +
                     colored("Action               : BUY " + str(trade_amount) + " " + my_quote_asset + "\n", "red")
             )
-
         else:
             log_message = (
                     colored(asset_info, "green") + "\n" +
@@ -144,6 +195,10 @@ def buy_low_sell_high():
         # Print to console and log to file
         print(log_message)
         logging.info(log_message)
+
+        # Save adjusted margins
+    with open(margin_file, 'w') as file:
+        json.dump(margin_percentages, file)
 
 
 try:
