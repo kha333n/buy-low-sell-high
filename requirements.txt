@@ -1,6 +1,8 @@
 apscheduler
 python-binance
-termcolor
-python-dotenv
-openai
+termcolor~=2.4.0
+python-dotenv~=1.0.1
+openai~=1.30.1
 google-generativeai
+requests~=2.32.2
+urllib3~=2.2.1

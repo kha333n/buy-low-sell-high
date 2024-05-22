@@ -2,22 +2,24 @@ live_trade = True
 enable_scheduler = True
 
 # You can select the coins that you want to trade here
-base = ["LINK"]
-core = [10]
+base = ["LINK", "FLOKI", "PEPE"]
+core = [5]
 
 # Optimal value, do not change these
 quote = ["USDT"]
-margin_percentage = 2
+margin_percentage = 1.5
 
-import os, socket, requests, urllib3, openai
+import logging
+import openai
+import os
+import requests
+import socket
+import urllib3
 from datetime import datetime
-from termcolor import colored
+
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
-from apscheduler.schedulers.blocking import BlockingScheduler
 from dotenv import load_dotenv
-import logging
-from datetime import datetime
 from termcolor import colored
 
 load_dotenv()
